@@ -1,0 +1,6 @@
+{
+    "description": "Summarize template.,
+    "prompt_input": "Texte:\n{input}\n{instruction}\n\n###\n\n",
+    "prompt_no_input": "Ci-dessous se trouve une instruction qui décrit une tâche. Écrivez une réponse qui complète correctement la demande.\n\n### Instruction:\n{instruction}\n\n### Réponse:\n",
+    "response_split": "### Réponse:"
+}

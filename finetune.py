@@ -52,7 +52,7 @@ def train(
     # wandb params
     wandb_project: str = "",
     wandb_run_name: str = "",
-    wandb_watch: str = "",  # options: false | gradients | all
+    wandb_watch: str = "all",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
@@ -164,11 +164,7 @@ def train(
             if add_eos_token:
                 user_prompt_len -= 1
 
-            tokenized_full_prompt["labels"] = [
-                -100
-            ] * user_prompt_len + tokenized_full_prompt["labels"][
-                user_prompt_len:
-            ]  # could be sped up, probably
+            tokenized_full_prompt["labels"] = [-100] * user_prompt_len + tokenized_full_prompt["labels"][user_prompt_len:]  # could be sped up, probably
         return tokenized_full_prompt
 
     model = prepare_model_for_int8_training(model)

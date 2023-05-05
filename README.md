@@ -46,13 +46,13 @@ We can also tweak our hyperparameters:
 ```bash
 python finetune.py \
     --base_model 'decapoda-research/llama-7b-hf' \
-    --data_path 'yahma/alpaca-cleaned' \
+    --data_path 'llama-dataset-2023-05-03.json' \
     --output_dir './lora-alpaca' \
     --batch_size 128 \
     --micro_batch_size 4 \
     --num_epochs 3 \
     --learning_rate 1e-4 \
-    --cutoff_len 512 \
+    --cutoff_len 1024 \
     --val_set_size 2000 \
     --lora_r 8 \
     --lora_alpha 16 \
@@ -60,6 +60,8 @@ python finetune.py \
     --lora_target_modules '[q_proj,v_proj]' \
     --train_on_inputs \
     --group_by_length
+    --wandb_project "sum-law"
+    --wandb_run_name
 ```
 
 ### Inference (`generate.py`)

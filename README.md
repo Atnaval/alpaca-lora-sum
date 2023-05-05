@@ -48,7 +48,7 @@ python finetune.py \
     --base_model 'decapoda-research/llama-7b-hf' \
     --data_path 'llama-dataset-2023-05-03.json' \
     --output_dir './lora-alpaca' \
-    --batch_size 128 \
+    --batch_size 256 \
     --micro_batch_size 4 \
     --num_epochs 3 \
     --learning_rate 1e-4 \
@@ -59,9 +59,9 @@ python finetune.py \
     --lora_dropout 0.05 \
     --lora_target_modules '[q_proj,v_proj]' \
     --train_on_inputs \
-    --group_by_length
-    --wandb_project "sum-law"
-    --wandb_run_name
+    --group_by_length \
+    --wandb_project "sum-law" \
+    --wandb_run_name \
 ```
 
 ### Inference (`generate.py`)

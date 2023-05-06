@@ -59,10 +59,12 @@ python finetune.py \
     --lora_dropout 0.05 \
     --lora_target_modules '[q_proj,v_proj]' \
     --train_on_inputs \
+    --prompt_template_name "sum" \
     --group_by_length \
     --wandb_project "sum-law" \
     --wandb_run_name \
 ```
+export TRANSFORMERS_CACHE=/workspace/cache/
 
 ### Inference (`generate.py`)
 

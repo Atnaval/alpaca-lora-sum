@@ -9,10 +9,12 @@ RUN apt-get update && apt-get install -y \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt install -y python3.10 \
     && rm -rf /var/lib/apt/lists/*
-WORKDIR /workspace
+WORKDIR /root/alpaca
 COPY requirements.txt requirements.txt
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.10 \
     && python3.10 -m pip install -r requirements.txt \
-    && python3.10 -m pip install numpy --pre torch --force-reinstall --index-url https://download.pytorch.org/whl/nightly/cu118
+    && python3.10 -m pip install numpy --pre torch --force-reinstall --index-url https://download.pytorch.org/whl/nightly/cu118 \
+    && python3.10 -m pip install jupyterlab
 COPY . .
-ENTRYPOINT [ "python3.10"]
+CMD ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--allow-root", "--no-browser"]
+EXPOSE 8888

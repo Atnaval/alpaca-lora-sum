@@ -6,6 +6,7 @@ import fire
 import torch
 import transformers
 from datasets import load_dataset
+import multiprocessing
 
 """
 Unused imports:
@@ -27,8 +28,8 @@ from utils.prompter import Prompter
 
 def train(
     # model/data params
-    base_model: str = "",  # the only required argument
-    data_path: str = "yahma/alpaca-cleaned",
+    base_model: str = "decapoda-research/llama-7b-hf",  # the only required argument
+    data_path: str = "./alpaca_data_cleaned_archive.json",
     output_dir: str = "./lora-alpaca",
     # training hyperparams
     batch_size: int = 128,
@@ -50,9 +51,9 @@ def train(
     add_eos_token: bool = False,
     group_by_length: bool = False,  # faster, but produces an odd training loss curve
     # wandb params
-    wandb_project: str = "",
+    wandb_project: str = "sum-law",
     wandb_run_name: str = "",
-    wandb_watch: str = "all",  # options: false | gradients | all
+    wandb_watch: str = "gradients",  # options: false | gradients | all
     wandb_log_model: str = "",  # options: false | true
     resume_from_checkpoint: str = None,  # either training checkpoint or final adapter
     prompt_template_name: str = "alpaca",  # The prompt template to use, will default to alpaca.
@@ -211,20 +212,19 @@ def train(
             test_size=val_set_size, shuffle=True, seed=42
         )
         train_data = (
-            train_val["train"].shuffle().map(generate_and_tokenize_prompt, num_proc=12)
+            train_val["train"].shuffle().map(generate_and_tokenize_prompt, num_proc=36)
         )
         val_data = (
-            train_val["test"].shuffle().map(generate_and_tokenize_prompt, num_proc=12)
+            train_val["test"].shuffle().map(generate_and_tokenize_prompt, num_proc=36)
         )
     else:
-        train_data = data["train"].shuffle().map(generate_and_tokenize_prompt, num_proc=12)
+        train_data = data["train"].shuffle().map(generate_and_tokenize_prompt, num_proc=36)
         val_data = None
 
     if not ddp and torch.cuda.device_count() > 1:
         # keeps Trainer from trying its own DataParallelism when more than 1 gpu is available
         model.is_parallelizable = True
         model.model_parallel = True
-
     trainer = transformers.Trainer(
         model=model,
         train_dataset=train_data,
@@ -236,14 +236,14 @@ def train(
             num_train_epochs=num_epochs,
             learning_rate=learning_rate,
             fp16=True,
-            logging_steps=10,
+            logging_steps=1,
             optim="adamw_torch",
             evaluation_strategy="steps" if val_set_size > 0 else "no",
             save_strategy="steps",
-            eval_steps=200 if val_set_size > 0 else None,
-            save_steps=200,
+            eval_steps=30 if val_set_size > 0 else None,
+            save_steps=30,
             output_dir=output_dir,
-            save_total_limit=3,
+            save_total_limit=10,
             load_best_model_at_end=True if val_set_size > 0 else False,
             ddp_find_unused_parameters=False if ddp else None,
             group_by_length=group_by_length,

@@ -119,7 +119,13 @@ def train(
         device_map=device_map,
     )
 
-    tokenizer = AutoModelForCausalLM.from_pretrained(base_model)
+    tokenizer = AutoTokenizer.from_pretrained(base_model)
+
+    tokenizer.pad_token_id = (
+        0  # unk. we want this to be different from the eos token
+    )
+    tokenizer.padding_side = "left"  # Allow batched inference
+
 
     def tokenize(prompt, add_eos_token=True):
         # there's probably a way to do this with the tokenizer settings
